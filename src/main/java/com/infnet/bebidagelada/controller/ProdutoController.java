@@ -1,10 +1,12 @@
 package com.infnet.bebidagelada.controller;
 
-import com.infnet.bebidagelada.model.Produto;
+import com.infnet.bebidagelada.model.HistoricoProduto;
+import com.infnet.bebidagelada.services.HistoricoProdutoService;
 import com.infnet.bebidagelada.services.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.infnet.bebidagelada.model.Produto;
 
 import java.util.List;
 
@@ -14,6 +16,8 @@ public class ProdutoController {
     @Autowired
     private ProdutoService produtoService;
 
+    @Autowired
+    private HistoricoProdutoService historicoProdutoService;
 
     @GetMapping
     public List<Produto> listarProdutos() {
@@ -44,4 +48,8 @@ public class ProdutoController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/historico")
+    public List<HistoricoProduto> listarHistorico() {
+        return historicoProdutoService.listarHistorico();
+    }
 }
