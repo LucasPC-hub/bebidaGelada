@@ -52,4 +52,16 @@ public class ProdutoController {
     public List<HistoricoProduto> listarHistorico() {
         return historicoProdutoService.listarHistorico();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Produto> alterarProduto(@PathVariable Long id, @RequestBody Produto produto) {
+        return produtoService.buscarPorId(id)
+                .map(existingProduto -> {
+                    produto.setId(id);
+                    Produto updatedProduto = produtoService.alterarProduto(produto);
+                    return ResponseEntity.ok(updatedProduto);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

@@ -1,11 +1,14 @@
 package com.infnet.bebidagelada.services;
 
+import com.infnet.bebidagelada.events.ProdutoAlteradoEvent;
+import com.infnet.bebidagelada.events.ProdutoEvent;
 import com.infnet.bebidagelada.model.HistoricoProduto;
 import com.infnet.bebidagelada.model.Produto;
 import com.infnet.bebidagelada.repository.HistoricoProdutoRepository;
 import com.infnet.bebidagelada.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +21,8 @@ public class ProdutoService {
 
     @Autowired
     private HistoricoProdutoRepository historicoProdutoRepository;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     public List<Produto> listarProdutos() {
         return produtoRepository.findAll();
@@ -25,8 +30,14 @@ public class ProdutoService {
 
     public Produto salvarProduto(Produto produto) {
         Produto savedProduto = produtoRepository.save(produto);
-        registrarHistorico(savedProduto, "SALVAR");
+        eventPublisher.publishEvent(new ProdutoEvent(this, savedProduto));
         return savedProduto;
+    }
+
+    public Produto alterarProduto(Produto produto) {
+        Produto updatedProduto = produtoRepository.save(produto);
+        eventPublisher.publishEvent(new ProdutoAlteradoEvent(this, updatedProduto));
+        return updatedProduto;
     }
 
     public Optional<Produto> buscarPorId(Long id) {
@@ -45,7 +56,7 @@ public class ProdutoService {
         produtoRepository.deleteAll();
     }
 
-    private void registrarHistorico(Produto produto, String operacao) {
+    public void registrarHistorico(Produto produto, String operacao) {
         HistoricoProduto historico = new HistoricoProduto();
         historico.setProdutoId(produto.getId());
         historico.setNome(produto.getNome());
